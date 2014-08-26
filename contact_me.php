@@ -52,7 +52,7 @@ if($_POST)
 	
     /// SEND INITIAL TEXT MESSAGE, INSERT INTO DATABASE, AND EXIT WITH SUCCESS
     require "twilio/Services/Twilio.php"; //twilio library
-    require 'config/db-connect.php';        //databse connect
+    require 'config/connect-parse.php'; //PARSE LIBRARY
     require 'config/twilio-connect.php';    //twilio credentials...not sure if this will work
 
     ////set variables////
@@ -61,11 +61,23 @@ if($_POST)
 
     ////insert user info in database////
     ///////////////////////////////////
-    $sql="  INSERT INTO user (user_fname, user_phone) 
-            VALUES ('$user_Name','$user_Phone')"; //inserts in user table with first name and phone from landing page
+    use Parse\ParseObject;
+    
+    $userInfo = new ParseObject("userInfo");
+ 
+    $userInfo->set("userName", $user_Name);
+    $userInfo->set("userPhone", $user_Phone);
 
-    if (!mysqli_query($con,$sql)) {die('Error: ' . mysqli_error($con));}
-    mysqli_close($con);
+    //Save the object
+    try {
+      $userInfo->save();
+      echo 'New object created with objectId: ' . $userInfo->getObjectId();
+    } catch (ParseException $ex) {  
+      // Execute any logic that should take place if the save fails.
+      // error is a ParseException object with an error code and message.
+      echo 'Failed to create new object, with error message: ' + $ex->getMessage();
+    }
+
     
     ////Send confirmation text////
     /////////////////////////////
