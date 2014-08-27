@@ -57,11 +57,17 @@
     
     <!-- MAKE NOTE THAT THE PHP CODE THAT RETRIEVES THAT USER ID AND THEN THE USER PHONE NUMBER MUST BE ABOVE THE SCRIPT!!!!! -->    
     <?php
-        $id = $_GET['id'];   //get id from url
-        $userID = $id;
-        require 'config/db-connect.php';        //databse connect
-        $result = $con->query("SELECT user_phone FROM user WHERE user_id = $id "); //get the selected users phone based on user id
-        while ($rows = $result->fetch_assoc()) {$userPhone = $rows['user_phone'];} //store in variable $userPhone 
+        $userID = $_GET['id'];   //get id from url
+        require '../connectParse.php'; //PARSE LIBRARY
+        use Parse\ParseQuery;
+        
+        $query = new ParseQuery("Texter");
+        $query->equalTo("objectId", $userID);
+        $results = $query->find();
+        $currentUser = $results[0]; 
+        $userPhone = $currentUser->get("phone");
+
+    
     ?>
     
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>

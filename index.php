@@ -40,7 +40,7 @@
                 post_data = {'userName':user_name, 'userPhone':user_phone};
 
                 //Ajax post data to server
-                $.post('contact_me.php', post_data, function(response){  
+                $.post('user_signup.php', post_data, function(response){  
 
                     //load json data from server and output message     
                     if(response.type == 'error')
@@ -76,7 +76,7 @@
             <div class="row">
                 <div class="offset-by-two twelve columns alpha">
                     <h1 id="landing">
-                        The <strong>THIS IS A TEST SITE</strong> THIS IS A TEST SITE.
+                        The <strong>THIS IS A TESTERRRR SITE</strong> THIS IS A TEST SITE.
                     </h1>
                 </div>
             </div>
