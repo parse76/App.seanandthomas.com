@@ -77,9 +77,10 @@
             //get input field values
             var otp_reply      = $('input[name=reply]').val();
             var user_phone  = "<?php echo $userPhone; ?>";
+            var userID = "<?php echo $userID; ?>"
 
             //data to be sent to server
-            post_data = {'otpReply':otp_reply, 'userPhone':user_phone};
+            post_data = {'otpReply':otp_reply, 'userPhone':user_phone, 'userID':userID};
 
             //Ajax post data to server
             $.post('reply.php', post_data, function(response){  

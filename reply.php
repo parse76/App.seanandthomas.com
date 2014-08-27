@@ -1,18 +1,20 @@
 <?php
 
 /// SEND INITIAL TEXT MESSAGE, INSERT INTO DATABASE, AND EXIT WITH SUCCESS
-require "twilio/Services/Twilio.php"; //twilio library
-require 'config/twilio-connect.php';    //twilio credentials...not sure if this will work
-require 'config/db-connect.php';        //databse connect
+require '../twilio/Services/Twilio.php'; //twilio library
+require '../config/twilio-connect.php';    //twilio credentials...not sure if this will work
+require '../connectParse.php'; //PARSE LIBRARY
+use Parse\ParseQuery;
+use Parse\ParseObject;
 
 if($_POST)
 {
     
+    //get twilio number from the TexterObject?
+    //maybe get the user id from the url and query the object
+    //hard code it in for now
     $twilioNumber = '+12247231922';         //assign the twilio number that OTP will be sending from
     
-    //$userPhone = '+18472261310';            //this is my phone number 
-
-
     //check if its an ajax request, exit if not
     if(!isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
 	
@@ -33,27 +35,37 @@ if($_POST)
 		die($output);
 	}
     
+    if(!isset($_POST["userID"]) )
+	{
+		$output = json_encode(array('type'=>'error', 'text' => 'Input fields are empty!'));
+		die($output);
+	}
+
+	$userID = $_POST["userID"]; // We get the darn user ID here
+
 	//Sanitize input data using PHP filter_var().
-	$otp_Reply        = filter_var($_POST["otpReply"], FILTER_SANITIZE_STRING);
-    $user_Phone        = filter_var($_POST["userPhone"], FILTER_SANITIZE_STRING);
+	$adminReply        = filter_var($_POST["otpReply"], FILTER_SANITIZE_STRING);
+    $userPhone        = filter_var($_POST["userPhone"], FILTER_SANITIZE_STRING);
 	
 
     ////Send confirmation text////
     /////////////////////////////
     
-    $otp_Reply = str_replace('&#39;',"'",$otp_Reply);
-    $otp_Reply = str_replace(';',"",$otp_Reply);
-    $sms = $client->account->messages->sendMessage($twilioNumber, $user_Phone, $otp_Reply);
+    $adminReply = str_replace('&#39;',"'",$adminReply);
+    $adminReply = str_replace(';',"",$adminReply);
+    $sms = $client->account->messages->sendMessage($twilioNumber, $userPhone, $adminReply);
  
-    //insert message into database
-    //get user id from phone....make this a method you stupidhead sean
-    $result = $con->query("SELECT user_id FROM user WHERE user_phone = $user_Phone "); //get the selected users phone based on user id
-    while ($rows = $result->fetch_assoc()) {$userID = $rows['user_id'];} //store in variable $userPhone 
+    //set object for the recipient
+    $texterObject = new ParseObject("Texter", $userID);
+    $adminObject = new ParseObject("Texter", 'pJmpGkUVjh');
     
-    $otpReply = $con->real_escape_string($otp_Reply); //escape for special chars
-    $query = "INSERT INTO messages(content, sender,recipient) VALUES ('$otpReply','$twilioNumber','$userID')"; //sender is twil number for now...
-    mysqli_query($con,$query);
-    
+    //insert ADMIN message into database 
+    $message = new ParseObject("Messages");
+    $message->set("content",$adminReply);
+    $message->set("texter", $adminObject); //<- make this an object of type Texter.
+    $message->set("receiver", $texterObject);  //<-make this an object of type Texter too
+    $message->save();
+   
     
     if (!$sms) {
         $output = json_encode(array('type'=>'error', 'text' => 'Could not send text message!'));
@@ -61,7 +73,7 @@ if($_POST)
     }
     
     else{
-		$output = json_encode(array('type'=>'message', 'text' => "Message sent! $otp_Reply "));
+		$output = json_encode(array('type'=>'message', 'text' => "Message sent! $userID "));
 		die($output);
 	}
 

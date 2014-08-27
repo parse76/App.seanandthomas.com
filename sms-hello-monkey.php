@@ -11,13 +11,6 @@
 	$content = $_REQUEST['Body'];
     $twilioPhone = $_REQUEST['To']; //
 
-    /*testing
-    $userPhone = "+13306714458";
-	$message = 'gypsy';
-    settype($message, "string");
-    settype($userPhone, "string");
-    $twilioPhone = '+12247231922';*/
-
     //Query for the Texter ID based on phone number
     $query = new ParseQuery("Texter");
     $query->equalTo("phone", $userPhone);
@@ -25,13 +18,15 @@
     $currentUser = $results[0]; //set an object as the current user
     $userID=$currentUser->getObjectId();      //get the id of the current user
     
+    $adminObject = new ParseObject("Texter", 'pJmpGkUVjh'); //get the object of the admin id:1s2NJH1jAZ
+
 //check if authenticated here
     //If USER IS AUTHETICATED:
         //insert message into table
         $message = new ParseObject("Messages");
         $message->set("content",$content);
         $message->set("texter", $currentUser);
-        $message->set("twilioPhone", $twilioPhone);
+        $message->set("receiver", $adminObject); //<- make this an object of type Texter. 
         $message->save();
 
         //twilio api shtuff
