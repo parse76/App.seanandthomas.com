@@ -8,7 +8,7 @@
 
     //user info grabbed from twilio api
     $userPhone = $_REQUEST['From'];
-	$message = $_REQUEST['Body'];
+	$content = $_REQUEST['Body'];
     $twilioPhone = $_REQUEST['To']; //
 
     /*testing
@@ -25,12 +25,12 @@
     $currentUser = $results[0]; //set an object as the current user
     $userID=$currentUser->getObjectId();      //get the id of the current user
     
-//check if authenticated her
+//check if authenticated here
     //If USER IS AUTHETICATED:
         //insert message into table
         $message = new ParseObject("Messages");
-        $message->set("content",$message);
-        $message->set("userID", $userID);
+        $message->set("content",$content);
+        $message->set("texter", $currentUser);
         $message->set("twilioPhone", $twilioPhone);
         $message->save();
 

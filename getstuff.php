@@ -1,4 +1,7 @@
 <?php
+require '../connectParse.php'; //PARSE LIBRARY
+use Parse\ParseQuery;
+use Parse\ParseObject;
 
 if($_POST) {
     
@@ -24,28 +27,24 @@ if($_POST) {
 
 	$id = $_POST["userID"]; // We get the darn user ID here
 
-    require 'config/db-connect.php';        //databse connect
-
-    //$query = "SELECT user_phone FROM user WHERE user_id = $id "; //get the selected users phone based on user id
-    //while ($row = $query->fetch_assoc()) {$userPhone = $row['user_phone'];} //store in variable $userPhone
-
+    
+    //use Parse\ParseObject;
+    
     ///////////////////////
     ///DISPLAY MESSAGES//// 
     ///////////////////////
-    if($result = $con->query("  SELECT user.user_fname, messages.content, DATE_FORMAT(messages.timestamp,'%b/%d/%y at %h:%i%p') as timestamp 
-                                FROM messages 
-                                INNER JOIN user
-                                ON user.user_id = messages.sender
-                                WHERE sender = '$id' OR recipient = '$id' 
-                                ORDER BY timestamp ASC")){
-        if($result->num_rows){                          //if the query has a result, then dislpay data
-            while($rows = $result->fetch_assoc()){      //loop through result and display mesages
-                $userName = $rows['user_fname'];
-                $content = $rows['content'];
-                $timestamp = $rows['timestamp'];
-                echo $timestamp.':     '.$userName.': <strong>'.$content, '</strong></br></br>';
-            }  
-        }
+    
+    $currentTexter = new ParseObject("Texter", $id); //$currentTexter is set as the current Texter object
+    $query = new ParseQuery("Messages"); //new query on the Mesages class
+    $query->equalTo('texter', $currentTexter); //when texter key is equalto the current texter
+    $results = $query->find(); //$results now contains the output of all messages with $id userID
+
+    //loop through the messages
+    for ($i = 0; $i < count($results); $i++) { 
+        $object = $results[$i]; //object of type "Message" first message incremented up each time
+        $messageContent = $object->get("content"); //gets the content of the message
+        $userName = 'Sean';
+        echo $userName.': <strong>'.$messageContent. '</strong></br></br>';
     }
     
 }
