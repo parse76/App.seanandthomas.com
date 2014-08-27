@@ -34,17 +34,27 @@ if($_POST) {
     ///DISPLAY MESSAGES//// 
     ///////////////////////
     
-    $currentTexter = new ParseObject("Texter", $id); //$currentTexter is set as the current Texter object
+
+    $humanTexter = new ParseObject("Texter", $id); //$currentTexter is set as the current Texter object
+    $adminTexter = new ParseObject("Texter", "pJmpGkUVjh"); //$currentTexter is set as the current Texter object
     $query = new ParseQuery("Messages"); //new query on the Mesages class
-    $query->equalTo('texter', $currentTexter); //when texter key is equalto the current texter
+    $query->containedIn("texter",
+                  [$adminTexter, $humanTexter]);
+    $query->ascending("createdAt");
     $results = $query->find(); //$results now contains the output of all messages with $id userID
+
+
 
     //loop through the messages
     for ($i = 0; $i < count($results); $i++) { 
         $object = $results[$i]; //object of type "Message" first message incremented up each time
         $messageContent = $object->get("content"); //gets the content of the message
-        $userName = 'Sean';
-        echo $userName.': <strong>'.$messageContent. '</strong></br></br>';
+        $texterObject = $object->get("texter"); //set a new object to the 'texter' object
+        $texterObject->fetch(); //call the info for that object
+        $username = $texterObject->get("name"); //get the name from the associated Texter
+        //query for Texter object info
+        
+        echo $username.': <strong>'.$messageContent. '</strong></br></br>';
     }
     
 }

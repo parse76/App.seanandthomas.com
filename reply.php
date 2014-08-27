@@ -73,7 +73,7 @@ if($_POST)
     }
     
     else{
-		$output = json_encode(array('type'=>'message', 'text' => "Message sent! $userID "));
+		$output = json_encode(array('type'=>'message', 'text' => "Message sent! "));
 		die($output);
 	}
 
